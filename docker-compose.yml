@@ -1,12 +1,38 @@
-version: '3.8'
-
 services:
+  tidb:
+    image: pingcap/tidb:latest
+    ports:
+      - "4000:4000"
+    environment:
+      - TIDB_USER=root
+      - TIDB_PASSWORD=
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/127.0.0.1/4000' || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  db-init:
+    image: mysql:8.0
+    depends_on:
+      tidb:
+        condition: service_healthy
+    volumes:
+      - ./db/init:/db-init
+    entrypoint: ["/bin/bash", "/db-init/init.sh"]
+    environment:
+      - MYSQL_HOST=tidb
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=
+
   api:
     build: ./api
     ports:
       - "3001:3001"
     environment:
       - PORT=3001
+    depends_on:
+      - db-init
     volumes:
       - ./api:/app
       - /app/node_modules

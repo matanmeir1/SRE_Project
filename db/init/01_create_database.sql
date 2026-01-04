@@ -1,0 +1,3 @@
+CREATE DATABASE IF NOT EXISTS sre_app;
+USE sre_app;
+
