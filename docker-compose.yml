@@ -31,8 +31,14 @@ services:
       - "3001:3001"
     environment:
       - PORT=3001
+      - DB_HOST=tidb
+      - DB_PORT=4000
+      - DB_USER=root
+      - DB_PASSWORD=
+      - DB_NAME=sre_app
     depends_on:
-      - db-init
+      tidb:
+        condition: service_healthy
     volumes:
       - ./api:/app
       - /app/node_modules
