@@ -151,7 +151,7 @@ services:
         condition: service_completed_successfully
     volumes:
       - ./api:/app
-      - /app/node_modules
+      - api-node-modules:/app/node_modules
 
   consumer:
     build: ./consumer
@@ -176,7 +176,39 @@ services:
       - ./client:/app
       - /app/node_modules
 
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3002:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_INSTALL_PLUGINS=
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    restart: unless-stopped
+
 volumes:
   pd-data:
   tikv-data:
+  prometheus-data:
+  grafana-data:
+  api-node-modules:
+
 

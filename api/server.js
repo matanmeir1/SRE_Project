@@ -5,6 +5,7 @@ const { v4: uuidv4 } = require('uuid');
 const db = require('./db');
 const authMiddleware = require('./middleware/auth');
 const logger = require('./logger');
+const { register, metricsMiddleware } = require('./metrics');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -14,6 +15,9 @@ app.set('trust proxy', true);
 
 app.use(cors());
 app.use(express.json());
+
+// Metrics middleware (must be before routes)
+app.use(metricsMiddleware);
 
 // Helper function to extract IP address
 const getClientIp = (req) => {
@@ -108,6 +112,16 @@ app.get('/api/me', authMiddleware, (req, res) => {
     id: req.user.id,
     email: req.user.email
   });
+});
+
+// Prometheus metrics endpoint
+app.get('/api/metrics', async (req, res) => {
+  try {
+    res.set('Content-Type', register.contentType);
+    res.end(await register.metrics());
+  } catch (error) {
+    res.status(500).end(error);
+  }
 });
 
 app.listen(PORT, '0.0.0.0', () => {
