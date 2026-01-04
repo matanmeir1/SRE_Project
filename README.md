@@ -116,7 +116,7 @@ docker compose ps
 
 | Service | URL | Credentials |
 |---------|-----|-------------|
-| **Client** | http://localhost:3000 | - |
+| **Client** | http://localhost:3000 | - (Login: admin@example.com / admin123) |
 | **API** | http://localhost:3001 | - |
 | **API Metrics** | http://localhost:3001/api/metrics | - |
 | **Prometheus** | http://localhost:9090 | - |
@@ -143,7 +143,7 @@ docker compose ps
 
 ### Application Services
 - **api**: Node.js/Express REST API (port 3001)
-- **client**: React frontend application (port 3000)
+- **client**: React frontend application with login form (port 3000)
 - **consumer**: Node.js Kafka consumer for CDC events
 
 ### Infrastructure
@@ -238,6 +238,16 @@ docker compose logs cdc-init
 Should see: `"Create changefeed successfully!"` or `"Changefeed 'sre-cdc' already exists"`
 
 ## Verification
+
+### 0. Test Client Login (Optional)
+
+1. Open http://localhost:3000 in your browser
+2. You should see a login form with email and password fields
+3. Use default credentials:
+   - Email: `admin@example.com`
+   - Password: `admin123`
+4. After successful login, you'll see your user information
+5. You can test the logout functionality
 
 ### 1. Check Service Status
 
