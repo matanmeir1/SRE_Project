@@ -4,12 +4,21 @@ const bcrypt = require('bcrypt');
 const { v4: uuidv4 } = require('uuid');
 const db = require('./db');
 const authMiddleware = require('./middleware/auth');
+const logger = require('./logger');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Trust proxy for x-forwarded-for header
+app.set('trust proxy', true);
+
 app.use(cors());
 app.use(express.json());
+
+// Helper function to extract IP address
+const getClientIp = (req) => {
+  return req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.ip || req.connection.remoteAddress;
+};
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'API is running' });
@@ -79,6 +88,14 @@ app.post('/api/login', async (req, res) => {
       'UPDATE users SET token = ? WHERE id = ?',
       [token, user.id]
     );
+
+    // Log successful login
+    logger.info({
+      timestamp: new Date().toISOString(),
+      userId: user.id,
+      action: 'login',
+      ip: getClientIp(req)
+    });
 
     res.json({ token });
   } catch (error) {

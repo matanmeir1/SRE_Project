@@ -12,7 +12,8 @@
     "cors": "^2.8.5",
     "mysql2": "^3.6.5",
     "bcrypt": "^5.1.1",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "log4js": "^6.9.1"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
